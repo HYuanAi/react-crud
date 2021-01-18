@@ -15,22 +15,21 @@ function createJob(newJob) {
 
 function retrieveJobs(pageNumber, pageSize) {
     const url = JOB_BASE_URL + `?page[number]=${pageNumber}&page[size]=${pageSize}`;
-    console.log(url);
+    
     return fetch(url, {
-        mode: "cors",
         method: "GET"
     });
 }
 
 function retrieveJob(id) {
-    const url = JOB_BASE_URL + `/${id}`;
+    const url = JOB_BASE_URL + `/${id}/`;
     return fetch(url, {
         method: "GET"
     });
 }
 
 function editJob(newJob) {
-    const url = JOB_BASE_URL + `/${newJob.id}`;
+    const url = JOB_BASE_URL + `/${newJob.id}/`;
     return fetch(url, {
         method: "POST",
         body: JSON.stringify({
@@ -42,7 +41,7 @@ function editJob(newJob) {
 }
 
 function deleteJob(id) {
-    const url = JOB_BASE_URL + `/${id}`;
+    const url = JOB_BASE_URL + `/${id}/`;
     return fetch(url, {
         method: "DELETE"
     });
