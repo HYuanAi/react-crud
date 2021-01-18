@@ -1,25 +1,35 @@
-import logo from './logo.svg';
+import React from 'react';
+import {  
+  Switch, 
+  Route,
+  Redirect
+} from "react-router-dom";
+
+import { Container } from 'react-bootstrap';
+import { JobList } from './components/JobList';
+// import { NewJob } from './components/NewJob';
+// import { EditJob } from './components/EditJob';
+
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const App = () => (
+  <Container>
+    <Switch>
+      <Route exact path="/">
+        <Redirect to="/jobs"></Redirect>
+      </Route>
+      <Route exact path="/jobs">
+        <JobList />
+      </Route>
+      {/* <Route exact path="/jobs/new">
+        <NewJob />
+      </Route>
+      <Route exact path="/jobs/{id}/edit">
+        <EditJob />
+      </Route> */}
+    </Switch>
+  </Container>
+)
 
 export default App;
