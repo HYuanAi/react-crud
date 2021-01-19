@@ -71,16 +71,20 @@ export class JobList extends React.Component {
     }
 
     render() {
+        if (this.state.isLoading) return 
+            <Spinner animation="border" role="status">
+                <span className="sr-only">Loading...</span>
+            </Spinner> 
         
         return (
             <>
-                { this.state.isLoading ? 
-                    <Spinner animation="border" role="status">
-                        <span className="sr-only">Loading...</span>
-                    </Spinner> : ''
-                }
+                <div className="mt-5">
+                    <LinkContainer to="/jobs/new">
+                        <Button variant="primary" className="mr-2">Add New Job</Button>
+                    </LinkContainer>
+                </div>
 
-                <div class="py-5">
+                <div className="py-5">
                     <>
                         { this.state.jobs.map(job => (
                             <Card key={job.id} className="mb-2">
@@ -96,7 +100,7 @@ export class JobList extends React.Component {
                                     <Button variant="danger" onClick={() => this.deleteJob(job)}>Delete</Button>
                                 </Card.Body>
                                 <Card.Footer>
-                                    <small class='text-muted'>
+                                    <small className='text-muted'>
                                         Job created on: {job.created_at} <br/>
                                         Job last updated on: {job.updated_at}
                                     </small>
