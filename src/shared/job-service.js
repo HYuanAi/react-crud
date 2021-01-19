@@ -55,10 +55,12 @@ function deleteJob(id) {
     });
 }
 
-export default { 
+const jobService = { 
     createJob, 
     retrieveJobs, 
     retrieveJob, 
     editJob, 
     deleteJob
-}
+};
+
+export default jobService;
