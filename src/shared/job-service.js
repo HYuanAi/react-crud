@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 
 const JOB_BASE_URL = "http://localhost:3000/jobs"
 
@@ -12,7 +13,7 @@ function createJob(newJob) {
         body: JSON.stringify({
             title: newJob.title,
             description: newJob.description,
-            expiry_date: newJob.expiry_date
+            expiry_date: format(newJob.expiry_date, 'yyyy-MM-dd') 
         })
     })
 }
@@ -43,7 +44,7 @@ function editJob(newJob) {
         body: JSON.stringify({
             title: newJob.title,
             description: newJob.description,
-            expiry_date: newJob.expiry_date
+            expiry_date: format(newJob.expiry_date, 'yyyy-MM-dd') 
         })
     });
 }
