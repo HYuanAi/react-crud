@@ -1,8 +1,8 @@
 import React from 'react';
 import { Switch, Route, Redirect } from "react-router-dom";
 import { Container } from 'react-bootstrap';
-import { JobList } from './components/JobList';
-import { JobDetails } from './components/JobDetails';
+import JobList from './components/JobList';
+import JobDetails, { detailMode } from './components/JobDetails';
 // import { EditJob } from './components/EditJob';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -19,11 +19,11 @@ const App = () => (
         <JobList />
       </Route>
       <Route exact path="/jobs/new">
-        <JobDetails />
+        <JobDetails mode={detailMode.NEW}/>
       </Route>
-      {/* <Route exact path="/jobs/{id}/edit">
-        <EditJob />
-      </Route> */}
+      <Route exact path="/jobs/:id/edit">
+        <JobDetails mode={detailMode.EDIT}/>
+      </Route>
     </Switch>
   </Container>
 )

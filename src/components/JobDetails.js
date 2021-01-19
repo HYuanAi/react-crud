@@ -1,18 +1,23 @@
 import React from 'react';
-import { Link, Redirect } from 'react-router-dom';
+import { Link, Redirect, withRouter } from 'react-router-dom';
 import { Form, Jumbotron, Alert, Button } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 
 import JobService from '../shared/job-service';
 
-export class JobDetails extends React.Component {
+export const detailMode = {
+    NEW: "new", 
+    EDIT: "edit"
+}
+
+class JobDetails extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = { 
             job: {
-                title: undefined,
-                description: undefined,
+                title: '',
+                description: '',
                 expiry_date: undefined
             },
             validated: false,
@@ -27,24 +32,21 @@ export class JobDetails extends React.Component {
 
     setTitle(event) {
         this.setState({ job: {
-            title: event.target.value, 
-            description: this.state.job.description, 
-            expiry_date: this.state.job.expiry_date
+            ...this.state.job,
+            title: event.target.value
         }});
     }
 
     setDescription(event) {
         this.setState({ job: {
-            title: this.state.job.title, 
-            description: event.target.value, 
-            expiry_date: this.state.job.expiry_date
+            ...this.state.job,
+            description: event.target.value
         }});
     }
 
     setExpiryDate(date) {
         this.setState({ job: {
-            title: this.state.job.title, 
-            description: this.state.job.description, 
+            ...this.state.job,
             expiry_date: date
         }});
     }
@@ -55,20 +57,49 @@ export class JobDetails extends React.Component {
         // Check validity 
         const form = event.currentTarget;
         if (form.checkValidity()) {
-            JobService.createJob(this.state.job)
-                .then(res => {
-                    if (res.status === 201) 
-                        this.setState({
-                            success: true, 
-                            error: false
-                        })
-                    else
-                        this.setState({ error: true })
-                })
-                .catch(err => this.setState({ error: true }));
+            if (this.props.mode === detailMode.NEW) 
+                JobService.createJob(this.state.job)
+                    .then(res => {
+                        if (res.status === 201) 
+                            this.setState({
+                                success: true, 
+                                error: false
+                            })
+                        else
+                            this.setState({ error: true })
+                    })
+                    .catch(err => this.setState({ error: true }));
+            else if (this.props.mode === detailMode.EDIT)
+                JobService.editJob(this.state.job)
+                    .then(res => { 
+                        if (res.status === 200)
+                            this.setState({
+                                success: true, 
+                                error: false
+                            })
+                        else
+                            this.setState({ error: true })
+                    })
+                    .catch(err => this.setState({ error: true }));
         }
 
         this.setState({ validated: true });
+    }
+
+    async componentDidMount() {
+        if (this.props.mode === detailMode.EDIT) {
+            // Load the job to edit 
+            const id = this.props.match.params.id;
+            
+            const response = await JobService.retrieveJob(id);
+            if (response) {
+                const data = await response.json();
+                data.expiry_date = new Date(data.expiry_date);
+                this.setState({
+                    job: data
+                });
+            }
+        }
     }
 
     render() {
@@ -83,10 +114,10 @@ export class JobDetails extends React.Component {
         return (
             <>  
                 <Jumbotron className="mt-5">
-                    <div className="mb-5">
+                    <div className="mb-3">
                         <Link to="/jobs">Back</Link>
                     </div>
-                    <h3 className="mb-2">Add New Job</h3>
+                    <h3 className="mb-2">{ this.props.mode === detailMode.NEW ? 'Add New Job' : 'Edit Job'}</h3>
                     { this.state.error ? <Alert variant="warning">There is an error creating the job. Please try again later.</Alert> : ''}
                     <Form noValidate validated={this.state.validated} onSubmit={this.handleSubmit}>
                         <Form.Group controlId="jobTitle">
@@ -107,7 +138,7 @@ export class JobDetails extends React.Component {
                                 customInput={<DatepickerInput />}/>
                         </Form.Group>
                         <Button variant="primary" type="submit">
-                            Create
+                        { this.props.mode === detailMode.NEW ? 'Create' : 'Save Changes'}
                         </Button>
                     </Form>
                 </Jumbotron>
@@ -116,3 +147,5 @@ export class JobDetails extends React.Component {
         )
     }
 }
+
+export default withRouter(JobDetails);

@@ -36,6 +36,10 @@ function editJob(newJob) {
     const url = JOB_BASE_URL + `/${newJob.id}/`;
     return fetch(url, {
         method: "POST",
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
             title: newJob.title,
             description: newJob.description,
