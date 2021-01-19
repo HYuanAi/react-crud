@@ -2,8 +2,11 @@ import React from 'react';
 import { Link, Redirect, withRouter } from 'react-router-dom';
 import { Form, Jumbotron, Alert, Button } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
+import JobDeleteModal from './JobDeleteModal';
 
 import JobService from '../shared/job-service';
+
+import { parseISO } from 'date-fns';
 
 export const detailMode = {
     NEW: "new", 
@@ -20,14 +23,18 @@ class JobDetails extends React.Component {
                 description: '',
                 expiry_date: undefined
             },
+            jobIdInvalid: false, 
             validated: false,
             success: false,
-            error: false
+            error: false,
+            showModal: false
         };
         this.setTitle = this.setTitle.bind(this);
         this.setDescription = this.setDescription.bind(this);
         this.setExpiryDate = this.setExpiryDate.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.setModalShow = this.setModalShow.bind(this);
+        this.loadJob = this.loadJob.bind(this);
     }
 
     setTitle(event) {
@@ -86,20 +93,33 @@ class JobDetails extends React.Component {
         this.setState({ validated: true });
     }
 
-    async componentDidMount() {
+    setModalShow(show) {
+        if (!show) this.loadJob();
+        this.setState({ showModal: show });
+    }
+
+    loadJob() {
         if (this.props.mode === detailMode.EDIT) {
             // Load the job to edit 
             const id = this.props.match.params.id;
             
-            const response = await JobService.retrieveJob(id);
-            if (response) {
-                const data = await response.json();
-                data.expiry_date = new Date(data.expiry_date);
-                this.setState({
-                    job: data
-                });
-            }
+            JobService.retrieveJob(id)
+                .then(response => {
+                    if (response.status === 404)
+                        this.setState({ jobIdInvalid: true });
+                    else {
+                        response.json().then(data => {
+                            data.expiry_date = parseISO(data.expiry_date);
+                            this.setState({ job: data})
+                        });
+                    }
+                })
+                .catch(err => this.setState({ jobIdInvalid: true }));
         }
+    }
+
+    async componentDidMount() {
+        this.loadJob();
     }
 
     render() {
@@ -107,7 +127,7 @@ class JobDetails extends React.Component {
             <Form.Control type="text" value={value} onChange={this.setExpiryDate} onClick={onClick} />
         ));
 
-        if (this.state.success) {
+        if (this.state.success || this.jobIdInvalid ) {
             return <Redirect to="/jobs" />
         }
 
@@ -132,17 +152,26 @@ class JobDetails extends React.Component {
                         <Form.Group>
                             <Form.Label>Expiry Date</Form.Label><br/>
                             <DatePicker 
+                                dateFormat="yyyy-MM-dd"
                                 selected={this.state.job.expiry_date} 
                                 onChange={this.setExpiryDate} 
                                 minDate={new Date()}
                                 customInput={<DatepickerInput />}/>
                         </Form.Group>
-                        <Button variant="primary" type="submit">
-                        { this.props.mode === detailMode.NEW ? 'Create' : 'Save Changes'}
+                        <Button variant="primary" type="submit" className="mr-2">
+                            { this.props.mode === detailMode.NEW ? 'Create' : 'Save Changes'}
                         </Button>
+                        { this.props.mode === detailMode.EDIT ? 
+                            <Button variant="danger" onClick={() => this.setModalShow(true)}>Delete</Button> : ''
+                        }
                     </Form>
                 </Jumbotron>
-                
+
+                <JobDeleteModal
+                    show={this.state.showModal}
+                    onHide={() => this.setModalShow(false)}
+                    job={this.state.job}
+                ></JobDeleteModal>
             </>
         )
     }
