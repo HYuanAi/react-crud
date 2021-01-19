@@ -4,7 +4,11 @@ const JOB_BASE_URL = "http://localhost:3000/jobs"
 function createJob(newJob) {
     const url = JOB_BASE_URL;
     return fetch(url, {
-        method: "POST",
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
             title: newJob.title,
             description: newJob.description,

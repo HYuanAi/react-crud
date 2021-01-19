@@ -1,16 +1,12 @@
 import React from 'react';
-import {  
-  Switch, 
-  Route,
-  Redirect
-} from "react-router-dom";
-
+import { Switch, Route, Redirect } from "react-router-dom";
 import { Container } from 'react-bootstrap';
 import { JobList } from './components/JobList';
-// import { NewJob } from './components/NewJob';
+import { JobDetails } from './components/JobDetails';
 // import { EditJob } from './components/EditJob';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
+import "react-datepicker/dist/react-datepicker.css";
 import './App.css';
 
 const App = () => (
@@ -22,10 +18,10 @@ const App = () => (
       <Route exact path="/jobs">
         <JobList />
       </Route>
-      {/* <Route exact path="/jobs/new">
-        <NewJob />
+      <Route exact path="/jobs/new">
+        <JobDetails />
       </Route>
-      <Route exact path="/jobs/{id}/edit">
+      {/* <Route exact path="/jobs/{id}/edit">
         <EditJob />
       </Route> */}
     </Switch>
