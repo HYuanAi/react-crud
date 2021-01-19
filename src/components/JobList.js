@@ -1,11 +1,11 @@
 import React from 'react';
 import { LinkContainer } from 'react-router-bootstrap';
-import { Card, Button, Spinner, Pagination } from 'react-bootstrap';
-import { ConfirmModal } from './ConfirmModal';
+import { Card, Button, Spinner, Pagination, Form } from 'react-bootstrap';
+import JobDeleteModal from './JobDeleteModal';
 
 import JobService from '../shared/job-service';
 
-export class JobList extends React.Component {
+export default class JobList extends React.Component {
     constructor(props) {
         super(props);
         this.state = { 
@@ -21,13 +21,13 @@ export class JobList extends React.Component {
         this.deleteJob = this.deleteJob.bind(this);
         this.loadJobs = this.loadJobs.bind(this);
         this.setCurrentPage = this.setCurrentPage.bind(this);
+        this.setPageSize = this.setPageSize.bind(this);
         this.getPaginationItems = this.getPaginationItems.bind(this);
     }
 
     async setModalShow(show) {
-        if (show === false) 
-            await this.loadJobs();
-        this.setState({ showModal: show});
+        if (!show) this.loadJobs();
+        this.setState({ showModal: show });
     }
 
     deleteJob(job) {
@@ -45,13 +45,26 @@ export class JobList extends React.Component {
                 isLoading: false,
                 totalPages: Math.ceil(data.totalCount / this.state.pageSize),
                 jobs: data.jobs
-            })
+            });
+            if (data.jobs.length === 0 && this.state.currentPage > 1) {
+                this.setState({ currentPage: 1 });
+                this.loadJobs();
+            }
         }
     }
 
     async setCurrentPage(pageNumber) {
-        await this.setState({ currentPage: pageNumber });
-        this.loadJobs();
+        if (pageNumber > 0) {
+            await this.setState({ currentPage: pageNumber });
+            this.loadJobs();
+        }
+    }
+
+    async setPageSize(event) {
+        if (event.target.value > 0) {
+            await this.setState({ pageSize: event.target.value });
+            this.loadJobs();
+        }
     }
 
     getPaginationItems(totalPages, currentPage) {
@@ -75,16 +88,42 @@ export class JobList extends React.Component {
             <Spinner animation="border" role="status">
                 <span className="sr-only">Loading...</span>
             </Spinner> 
+
+        const paginationControls = (
+            <div className="d-flex justify-content-between">
+                    <Form inline>
+                        <small className="text-muted ml-auto">Jobs per page: </small>
+                        <Form.Control
+                            as="select"
+                            className="ml-1 my-1 mr-sm-2"
+                            size="sm"
+                            value={this.state.pageSize}
+                            onChange={this.setPageSize}
+                            custom
+                        >
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="15">15</option>
+                            <option value="20">20</option>
+                        </Form.Control>
+                    </Form>
+                    <Pagination size="sm">
+                        {this.getPaginationItems(this.state.totalPages, this.state.currentPage)}
+                    </Pagination>
+                </div>
+        );
         
         return (
             <>
-                <div className="mt-5">
+                <div className="my-5">
                     <LinkContainer to="/jobs/new">
                         <Button variant="primary" className="mr-2">Add New Job</Button>
                     </LinkContainer>
                 </div>
 
-                <div className="py-5">
+                {paginationControls}
+
+                <div className="py-2">
                     <>
                         { this.state.jobs.map(job => (
                             <Card key={job.id} className="mb-2">
@@ -110,17 +149,15 @@ export class JobList extends React.Component {
                     </>
                 </div>
 
-                <div>
-                    <Pagination size="sm" className="float-right">
-                        {this.getPaginationItems(this.state.totalPages, this.state.currentPage)}
-                    </Pagination>
-                </div>
+                {paginationControls}
+
+                <div className="mb-5"></div>
                 
-                <ConfirmModal
+                <JobDeleteModal
                     show={this.state.showModal}
                     onHide={() => this.setModalShow(false)}
                     job={this.state.selectedJob}
-                ></ConfirmModal>
+                ></JobDeleteModal>
             </>
         )
     }
