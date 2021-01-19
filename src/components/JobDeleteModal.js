@@ -2,7 +2,8 @@ import React from 'react';
 import { Modal, Button, Alert } from 'react-bootstrap';
 import JobService from '../shared/job-service';
 
-export class ConfirmModal extends React.Component {
+export default class JobDeleteModal extends React.Component {
+
     constructor(props) {
         super(props);
         this.state = {
@@ -16,9 +17,9 @@ export class ConfirmModal extends React.Component {
             const res = await JobService.deleteJob(id);
             if (res) {
                 this.state.deleteError = !res.status === 200;
-                return !this.state.deleteError;
+                if (!this.state.deleteError) this.props.onHide();
             } else 
-                this.state.deleteError = true
+                this.state.deleteError = true;
         }
     }
 
@@ -36,7 +37,7 @@ export class ConfirmModal extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={this.props.onHide}>Cancel</Button>
-                    <Button variant="primary" onClick={() => this.deleteJob(this.props.job?.id) && this.props.onHide()}>Delete</Button>
+                    <Button variant="primary" onClick={() => this.deleteJob(this.props.job?.id)}>Delete</Button>
                 </Modal.Footer>
             </Modal>
         )
