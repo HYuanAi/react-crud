@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 
-const JOB_BASE_URL = "http://localhost:3000/jobs"
+const JOB_BASE_URL = "http://localhost:3001/jobs"
 
 function createJob(newJob) {
     const url = JOB_BASE_URL;
